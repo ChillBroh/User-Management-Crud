@@ -1,0 +1,52 @@
+.profile-container {
+    width: 50%;
+    margin: 0 auto;
+}
+
+.profile-image img {
+    width: 150px;
+    height: 150px;
+    border-radius: 50%;
+    margin-bottom: 20px;
+}
+
+.profile-info {
+    display: grid;
+    grid-template-columns: auto 1fr;
+    gap: 10px;
+}
+
+.profile-info div {
+    display: flex;
+    align-items: center;
+}
+
+.profile-info label {
+    font-weight: bold;
+    margin-right: 10px;
+}
+
+.profile-info input[type='text'],
+.profile-info input[type='email'],
+.profile-info input[type='password'] {
+    width: 100%;
+    padding: 5px;
+    margin-right: 10px;
+}
+
+.profile-info button {
+    padding: 5px 10px;
+    cursor: pointer;
+}
+
+.profile-info span {
+    padding: 5px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    display: inline-block;
+    min-width: 100px;
+}
+
+button[type='submit'] {
+    margin-top: 20px;
+}

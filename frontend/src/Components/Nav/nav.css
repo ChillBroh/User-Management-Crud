@@ -1,0 +1,27 @@
+.navbar {
+  display: flex;
+  justify-content: flex-end; /* Aligns items to the end of the container */
+  padding: 30px;
+}
+
+.home-ui {
+  list-style-type: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  justify-content: end;
+}
+
+.home-ll {
+  margin-left: 10px; /* Adjust spacing between items */
+  padding: 20px;
+}
+
+.home-ll h1 {
+  display: inline;
+  color: white;
+  text-align: center;
+  padding: 14px 16px;
+  text-decoration: none;
+  font-size: 17px;
+}
