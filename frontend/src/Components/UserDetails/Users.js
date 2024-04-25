@@ -4,6 +4,7 @@ import axios from "axios";
 import { useReactToPrint } from "react-to-print";
 import "./Users.css";
 import { Link } from "react-router-dom";
+import Nav from "../Nav/Nav";
 import Swal from "sweetalert2";
 
 const URL = "http://localhost:5000/api/v1/user/";
@@ -47,8 +48,7 @@ function Users() {
   };
 
   const deleteUser = async (id) => {
-    // Ask for confirmation
-    const result = await Swal.fire({
+    const confirmation = await Swal.fire({
       title: "Are you sure?",
       text: "You won't be able to revert this!",
       icon: "warning",
@@ -58,86 +58,88 @@ function Users() {
       confirmButtonText: "Yes, delete it!",
     });
 
-    // If confirmed, proceed with deletion
-    if (result.isConfirmed) {
+    if (confirmation.isConfirmed) {
       try {
         await axios.delete(`http://localhost:5000/api/v1/user/${id}`);
         setUsers(users.filter((user) => user._id !== id));
-        Swal.fire("Deleted!", "The user has been deleted.", "success");
+        Swal.fire("Deleted!", "User has been deleted.", "success");
       } catch (error) {
         console.error("Error deleting user:", error);
-        Swal.fire("Error!", "Failed to delete user.", "error");
+        Swal.fire("Error!", "User deletion failed.", "error");
       }
     }
   };
 
   return (
-    <div className="container">
-      <h1>User Details Display Page</h1>
-      <div className="search-container">
-        <div>
-          {" "}
-          <input
-            onChange={(e) => setSearchQuery(e.target.value)}
-            type="text"
-            name="search"
-            placeholder="Search User Details"
-          />
+    <div>
+      <Nav />
+      <NavigationBar />
+      <div className="container">
+        <h1>User Details Display Page</h1>
+        <div className="search-container">
+          <div>
+            {" "}
+            <input
+              onChange={(e) => setSearchQuery(e.target.value)}
+              type="text"
+              name="search"
+              placeholder="Search User Details"
+            />
+          </div>
+          <div>
+            <button onClick={handleSearch}>Search</button>
+          </div>
         </div>
-        <div>
-          <button onClick={handleSearch}>Search</button>
+        <div className="user-btn">
+          <div>
+            <Link to="/adduser">
+              <button>Add User</button>
+            </Link>
+          </div>
+          <div>
+            <button onClick={handlePrint}>Download Report</button>
+          </div>
         </div>
-      </div>
-      <div className="user-btn">
-        <div>
-          <Link to="/adduser">
-            <button>Add User</button>
-          </Link>
-        </div>
-        <div>
-          <button onClick={handlePrint}>Download Report</button>
-        </div>
-      </div>
-
-      {noResults ? (
-        <div className="no-results">No Users Found</div>
-      ) : (
-        <div ref={ComponentsRef} className="users-table-container">
-          <table className="users-table">
-            <thead>
-              <tr>
-                <th>Name</th>
-                <th>Email</th>
-                <th>Password</th>
-                <th>Role</th>
-                <th>Action</th>
-              </tr>
-            </thead>
-            <tbody>
-              {users.map((user, i) => (
-                <tr key={i}>
-                  <td>{user.name}</td>
-                  <td>{user.email}</td>
-                  <td>{user.password}</td>
-                  <td>{user.role}</td>
-                  <td>
-                    <div className="table-btn">
-                      <div>
-                        <Link to={`/userdetails/${user._id}`}>Update</Link>
-                      </div>
-                      <div>
-                        <button onClick={() => deleteUser(user._id)}>
-                          Delete
-                        </button>
-                      </div>
-                    </div>
-                  </td>
+        {noResults ? (
+          <div className="no-results">No Users Found</div>
+        ) : (
+          <div ref={ComponentsRef} className="users-table-container">
+            <table className="users-table">
+              <thead>
+                <tr>
+                  <th>Name</th>
+                  <th>Email</th>
+                  <th>Password</th>
+                  <th>Role</th>
+                  <th>Action</th>
                 </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-      )}
+              </thead>
+              <tbody>
+                {users.map((user, i) => (
+                  <tr key={i}>
+                    <td>{user.name}</td>
+                    <td>{user.email}</td>
+                    <td>{user.password}</td>
+                    <td>{user.role}</td>
+                    <td>
+                      <div className="table-btn">
+                        <div>
+                          <Link to={`/userdetails/${user._id}`}>Update</Link>
+                        </div>
+                        <div>
+                          <button onClick={() => deleteUser(user._id)}>
+                            Delete
+                          </button>
+                        </div>
+                      </div>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        )}
+      </div>
     </div>
   );
 }

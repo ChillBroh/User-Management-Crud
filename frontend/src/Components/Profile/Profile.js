@@ -1,118 +1,108 @@
-import React, { useState, useEffect } from 'react';
-import './Profile.css';
-import axios from 'axios';
+import React, { useState, useEffect } from "react";
+import axios from "axios";
+import Swal from "sweetalert2";
+import "./profile.css";
+import Nav from "../Nav/Nav";
+import { Link, useNavigate } from "react-router-dom";
 
-function Profile() {
-    const [user, setUser] = useState({
-        name: '',
-        email: '',
-        password: '',
-        image: ''
-    });
+const Profile = () => {
+  const [userData, setUserData] = useState({});
+  const navigate = useNavigate();
 
-    useEffect(() => {
-        // Fetch user data from the backend
-        axios.get('/api/users/current')
-            .then(response => {
-                setUser(response.data);
-            })
-            .catch(error => {
-                console.error('Error fetching user data:', error);
-            });
-    }, []);
-
-    const [editableFields, setEditableFields] = useState({
-        name: false,
-        email: false,
-        password: false,
-    });
-
-    const handleInputChange = (event) => {
-        const { name, value } = event.target;
-        setUser({ ...user, [name]: value });
+  useEffect(() => {
+    const fetchUserProfile = async () => {
+      try {
+        const token = localStorage.getItem("jsonwebtoken");
+        const response = await axios.get(
+          "http://localhost:5000/api/v1/auth/current-user",
+          {
+            headers: { Authorization: `Bearer ${token}` },
+          }
+        );
+        setUserData(response.data.data);
+      } catch (error) {
+        Swal.fire({
+          icon: "error",
+          title: "Error",
+          text: error.response.data.message,
+        });
+      }
     };
 
-    const handleSubmit = async (event) => {
-        event.preventDefault();
-        try {
-            const response = await axios.put(`/api/users/${user._id}`, user);
-            console.log('Profile updated:', response.data);
-        } catch (error) {
-            console.error('Error updating profile:', error);
-        }
-    };
+    fetchUserProfile();
+  }, []);
 
-    const toggleEditMode = (field) => {
-        setEditableFields({ ...editableFields, [field]: !editableFields[field] });
-    };
+  const handleDelete = async () => {
+    try {
+      const token = localStorage.getItem("jsonwebtoken");
+      const confirmation = await Swal.fire({
+        title: "Are you sure?",
+        text: "This action cannot be undone!",
+        icon: "warning",
+        showCancelButton: true,
+        confirmButtonColor: "#3085d6",
+        cancelButtonColor: "#d33",
+        confirmButtonText: "Yes, delete it!",
+      });
 
-    return (
-        <div className="profile-container">
-            <h2>User Profile</h2>
-            <form onSubmit={handleSubmit}>
-                <div className="profile-image">
-                    <img src={user.image} alt="User" />
-                </div>
-                <div className="profile-info">
-                    <div>
-                        <label htmlFor="name">Name:</label>
-                        {editableFields.name ? (
-                            <input
-                                type="text"
-                                id="name"
-                                name="name"
-                                value={user.name}
-                                onChange={handleInputChange}
-                                required
-                            />
-                        ) : (
-                            <span>{user.name}</span>
-                        )}
-                        <button type="button" onClick={() => toggleEditMode('name')}>
-                            {editableFields.name ? 'Save' : 'Edit'}
-                        </button>
-                    </div>
-                    <div>
-                        <label htmlFor="email">Email:</label>
-                        {editableFields.email ? (
-                            <input
-                                type="email"
-                                id="email"
-                                name="email"
-                                value={user.email}
-                                onChange={handleInputChange}
-                                required
-                            />
-                        ) : (
-                            <span>{user.email}</span>
-                        )}
-                        <button type="button" onClick={() => toggleEditMode('email')}>
-                            {editableFields.email ? 'Save' : 'Edit'}
-                        </button>
-                    </div>
-                    <div>
-                        <label htmlFor="password">Password:</label>
-                        {editableFields.password ? (
-                            <input
-                                type="password"
-                                id="password"
-                                name="password"
-                                value={user.password}
-                                onChange={handleInputChange}
-                                required
-                            />
-                        ) : (
-                            <span>******</span>
-                        )}
-                        <button type="button" onClick={() => toggleEditMode('password')}>
-                            {editableFields.password ? 'Save' : 'Edit'}
-                        </button>
-                    </div>
-                </div>
-                <button type="submit">Update Profile</button>
-            </form>
+      if (confirmation.isConfirmed) {
+        await axios.delete(`http://localhost:5000/api/v1/user/${userData._id}`);
+        await axios.get("http://localhost:5000/api/v1/auth/logout");
+        localStorage.removeItem("jsonwebtoken");
+        localStorage.removeItem("role");
+        Swal.fire(
+          "Deleted!",
+          "Your profile has been deleted.Please Login!",
+          "success"
+        );
+        setTimeout(() => {
+          window.location.reload();
+        }, 2000);
+        navigate("/login");
+      }
+    } catch (error) {
+      Swal.fire({
+        icon: "error",
+        title: "Error",
+        text: error.response.data.message,
+      });
+    }
+  };
+
+  return (
+    <div>
+      <Nav />
+      <div className="user-profile-container">
+        <h1>User Profile</h1>
+        <div className="profile-details">
+          <p>
+            <b>ID:</b> {userData._id}
+          </p>
+          <p>
+            <b>Name:</b> {userData.name}
+          </p>
+          <p>
+            <b>Email:</b> {userData.email}
+          </p>
+          {/* Consider hiding password information */}
+          <p>
+            <b>Role:</b> {userData.role}
+          </p>
         </div>
-    );
-}
+        <div className="profile-buttons">
+          <button
+            onClick={() => handleDelete(userData._id)}
+            className="btn btn-delete"
+          >
+            Delete Profile
+          </button>
+          <Link to={`/userdetails/${userData._id}`}>
+            <button className="btn btn-update">Update</button>
+          </Link>
+        </div>
+      </div>
+    </div>
+  );
+};
 
 export default Profile;

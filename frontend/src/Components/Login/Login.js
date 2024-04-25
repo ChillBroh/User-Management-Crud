@@ -4,18 +4,21 @@ import "./Login.css";
 import { useNavigate } from "react-router-dom";
 import { Link } from "react-router-dom";
 import Swal from "sweetalert2";
+import Nav from "../Nav/Nav";
 
 function Login() {
-  const history = useNavigate();
+  const navigate = useNavigate();
   const [user, setUser] = useState({
     email: "",
     password: "",
-    role: "user",
+    role: "Customer", // Default role
   });
 
   const handleInputChange = (e) => {
-    const { name, value } = e.target;
-    setUser((prevUser) => ({ ...prevUser, [name]: value }));
+    setUser({
+      ...user,
+      [e.target.name]: e.target.value,
+    });
   };
 
   const handleSubmit = async (e) => {
@@ -29,7 +32,18 @@ function Login() {
           text: "You have been successfully logged in.",
         });
         const role = localStorage.getItem("role");
-        redirectUser(role);
+        if (role === "Admin") {
+          navigate("/userdetails");
+        }
+        if (role === "Customer") {
+          navigate("/userdashboard");
+        }
+        if (role === "Employee") {
+          navigate("/employeedashboard");
+        }
+        if (role === "Manager") {
+          navigate("/managerdashboard");
+        }
       } else {
         Swal.fire({
           icon: "error",
@@ -63,67 +77,52 @@ function Login() {
     return res;
   };
 
-  const redirectUser = (role) => {
-    switch (role) {
-      case "Customer":
-        history("/userdashboard");
-        break;
-      case "Employee":
-        history("/employeedashboard");
-        break;
-      case "Manager":
-        history("/managerdashboard");
-        break;
-      case "Admin":
-        history("/");
-        break;
-      default:
-        history("/userdashboard");
-    }
-  };
-
   return (
-    <div style={{ marginTop: "50px" }}>
-      <div className="register-container">
-        <h2>Login</h2>
-        <form onSubmit={handleSubmit}>
-          <label htmlFor="email">Email:</label>
-          <input
-            type="email"
-            value={user.email}
-            onChange={handleInputChange}
-            name="email"
-          />
-          <br />
-          <br />
-
-          <label htmlFor="password">Password:</label>
-          <input
-            type="password"
-            value={user.password}
-            onChange={handleInputChange}
-            name="password"
-          />
-          <br />
-          <br />
-
-          <label htmlFor="role">Role:</label>
-          <select name="role" value={user.role} onChange={handleInputChange}>
-            <option value="Customer">Customer</option>
-            <option value="Employee">Employee</option>
-            <option value="Manager">Manager</option>
-            <option value="Admin">Admin</option>
-          </select>
-          <br />
-          <br />
-
-          <input type="submit" value="Login" />
-        </form>
-
-        {/* Link to register page */}
-        <p>
-          Don't have an account? <Link to="/register">Register</Link>
-        </p>
+    <div>
+      <Nav />
+      <div style={{ marginTop: "50px" }}>
+        <div className="register-container">
+          <h2>Login</h2>
+          <form onSubmit={handleSubmit}>
+            <label htmlFor="email">Email:</label>
+            <input
+              type="email"
+              value={user.email}
+              onChange={handleInputChange}
+              name="email"
+              required
+            />
+            <br />
+            <br />
+            <label htmlFor="password">Password:</label>
+            <input
+              type="password"
+              value={user.password}
+              onChange={handleInputChange}
+              name="password"
+              required
+            />
+            <p style={{ textAlign: "right" }}>
+              <Link to="/reset-password">Forgot Password?</Link>
+            </p>
+            <br />
+            <br />
+            <label htmlFor="role">Role:</label>
+            <select name="role" value={user.role} onChange={handleInputChange}>
+              <option value="Customer">Customer</option>
+              <option value="Employee">Employee</option>
+              <option value="Manager">Manager</option>
+              <option value="Admin">Admin</option>
+            </select>
+            <br />
+            <br />
+            <input type="submit" value="Login" />
+          </form>
+          {/* Link to register page */}
+          <p>
+            Don't have an account? <Link to="/register">Register</Link>
+          </p>
+        </div>
       </div>
     </div>
   );

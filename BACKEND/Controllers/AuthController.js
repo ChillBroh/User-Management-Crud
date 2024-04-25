@@ -1,4 +1,6 @@
 const User = require("../Models/UserModel");
+const Otp = require("../Models/OTPModal");
+const sendEmail = require("../utils/sendEmail");
 const jwt = require("jsonwebtoken");
 
 const loginUser = async (req, res) => {
@@ -45,11 +47,6 @@ const createSendToken = (user) => {
     httpOnly: true,
   };
 
-  const decode = (token) => {
-    const tokenWithoutBearer = token.split(" ")[1];
-    const decoded = jwt.verify(tokenWithoutBearer, process.env.JWT_SECRET);
-    return decoded;
-  };
   return {
     status: "success",
     token,
@@ -58,6 +55,84 @@ const createSendToken = (user) => {
   };
 };
 
+//decode token
+const decode = (token) => {
+  const tokenWithoutBearer = token.split(" ")[1];
+  const decoded = jwt.verify(tokenWithoutBearer, process.env.JWT_SECRET);
+  return decoded;
+};
+
+//current user
+const currentUser = async (req, res) => {
+  try {
+    const token = req.headers.authorization;
+    if (!token) {
+      throw new Error("Please Login First");
+    }
+    const decoded = decode(token);
+    console.log(decoded);
+    const user = await User.findOne({ email: decoded.email });
+    if (!user) {
+      throw new Error("User Not Found");
+    }
+    res.status(200).json({
+      status: "success",
+      data: user,
+    });
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+};
+
+//email send with token
+const sendTokenVerify = async (req, res) => {
+  const { email } = req.params;
+  try {
+    //check user
+    const user = await User.findOne({ email: email });
+    if (!user) {
+      throw new Error("User Not Found");
+    }
+    const otp = Math.floor(10000 + Math.random() * 90000);
+
+    const otpNumber = new Otp({
+      email: email,
+      otp: otp,
+    });
+    const savedOtp = await otpNumber.save();
+    await sendEmail(email, "Reset Password OTP", otp.toString());
+    res.status(200).json({ message: "sent" });
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+};
+
+//otp confirmation
+const otpVerify = async (req, res) => {
+  const { email, otp } = req.body;
+  try {
+    console.log(email, otp);
+    const otpCheck = await Otp.find({ email: email, otp: otp });
+    console.log(otpCheck);
+    if (otpCheck.length === 0) {
+      throw new Error("Invalid OTP");
+    }
+    const deleteOTP = await Otp.findOneAndDelete({ email: email, otp: otp });
+    const updatedUser = await User.findOneAndUpdate(
+      { email },
+      { password: "1234" }
+    );
+    res.status(200).json({
+      status: "success",
+      message:
+        "OTP Verified Successfully. Your password is 1234. Change this after Login!",
+    });
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+};
+
+//logout
 const logout = (req, res, next) => {
   try {
     res.cookie("jwt", "loggedout", {
@@ -75,5 +150,7 @@ const logout = (req, res, next) => {
 module.exports = {
   loginUser,
   logout,
-  //   resetPassword,
+  currentUser,
+  sendTokenVerify,
+  otpVerify,
 };

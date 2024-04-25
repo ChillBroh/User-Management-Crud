@@ -1,55 +1,33 @@
 /* NavigationBar.css */
 
-.vertical-navbar {
-  height: 100%;
-  width: 200px; /* Adjust the width according to your design */
-  position: fixed;
-  z-index: 1;
-  top: 0;
-  left: 0;
+.upper-navbar {
   background-color: #333;
-  padding-top: 50px;
+  color: white;
+  padding: 10px;
+}
+
+.vertical-navbar {
+  width: 200px;
+  position: fixed;
+  left: 0;
+  top: 50px; /* Adjust according to your upper navbar height */
+  height: 100%;
+  background-color: #f2f2f2;
+  padding-top: 20px;
 }
 
 .vertical-navbar a {
-  padding: 10px 15px;
-  text-decoration: none;
-  font-size: 18px;
-  color: white;
   display: block;
+  padding: 10px;
+  text-decoration: none;
+  color: black;
 }
 
 .vertical-navbar a:hover {
   background-color: #ddd;
-  color: black;
 }
 
-/* Additional Styling for Horizontal Menu */
-.home-ui {
-  list-style-type: none;
-  margin: 0;
-  padding: 0;
-  overflow: hidden;
-  background-color: #333;
-  position: fixed;
-  top: 0;
-  right: 0;
-  width: calc(100% - 200px); /* Adjust the width according to your design */
-}
-
-.home-ll {
-  float: left;
-}
-
-.home-ll h1 {
-  display: inline;
-  color: white;
-  text-align: center;
-  padding: 14px 16px;
-  text-decoration: none;
-  font-size: 17px;
-}
-
-.active {
-  background-color: #4caf50;
+.content {
+  margin-left: 200px; /* Same as the width of the vertical navbar */
+  padding: 20px;
 }

@@ -51,7 +51,7 @@ function Register() {
         title: "Success",
         text: "Registration Successful!",
       });
-      history("/userdetails");
+      history("/login");
     } catch (error) {
       console.error("Registration Error:", error);
       Swal.fire({
@@ -74,42 +74,44 @@ function Register() {
   };
 
   return (
-    <div style={{ marginTop: "50px" }}>
-      {/* <Nav/> */}
-      <div className="register-container">
-        <h2>Register</h2>
-        <form onSubmit={handleSubmit}>
-          <label htmlFor="name">Name:</label>
-          <input type="text" onChange={handleInputChange} name="name" />
-          <br />
-          <br />
-
-          <label htmlFor="email">Email:</label>
-          <input type="email" onChange={handleInputChange} name="gmail" />
-          <br />
-          <br />
-
-          <label htmlFor="password">Password:</label>
-          <input type="password" onChange={handleInputChange} name="password" />
-          <br />
-          <br />
-
-          <label htmlFor="confirmPassword">Confirm Password:</label>
-          <input
-            type="password"
-            onChange={handleInputChange}
-            name="confirmPassword"
-          />
-          <br />
-          <br />
-
-          <input type="submit" value="Register" />
-        </form>
-
-        {/* Link to login page */}
-        <p>
-          Already have an account? <Link to="/login">Login</Link>
-        </p>
+    <div>
+      <Nav />
+      <div style={{ marginTop: "50px" }}>
+        {/* <Nav/> */}
+        <div className="register-container">
+          <h2>Register</h2>
+          <form onSubmit={handleSubmit}>
+            <label htmlFor="name">Name:</label>
+            <input type="text" onChange={handleInputChange} name="name" />
+            <br />
+            <br />
+            <label htmlFor="email">Email:</label>
+            <input type="email" onChange={handleInputChange} name="gmail" />
+            <br />
+            <br />
+            <label htmlFor="password">Password:</label>
+            <input
+              type="password"
+              onChange={handleInputChange}
+              name="password"
+            />
+            <br />
+            <br />
+            <label htmlFor="confirmPassword">Confirm Password:</label>
+            <input
+              type="password"
+              onChange={handleInputChange}
+              name="confirmPassword"
+            />
+            <br />
+            <br />
+            <input type="submit" value="Register" />
+          </form>
+          {/* Link to login page */}
+          <p>
+            Already have an account? <Link to="/login">Login</Link>
+          </p>
+        </div>
       </div>
     </div>
   );
