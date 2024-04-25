@@ -5,24 +5,18 @@ import { useParams } from "react-router";
 import UpdateUsers from "./UpdateUsers.css";
 
 function UpdateUser() {
-  const [inputs, setInputs] = useState({});
+  const [inputs, setInputs] = useState();
   const history = useNavigate();
   const { id } = useParams();
 
   useEffect(() => {
     const fetchUser = async () => {
       try {
-        const response = await axios.get(`http://localhost:5000/users/${id}`);
-        console.log("User details response:", response.data);
-        if (response.data.users) {
-          const user = response.data.users[0];
-          setInputs({
-            name: user.name || "",
-            email: user.email || "",
-            password: user.password || "",
-            role: user.role || "", // New field for user role
-          });
-        }
+        const response = await axios.get(
+          `http://localhost:5000/api/v1/user/${id}`
+        );
+        const user = response.data.message;
+        setInputs(user);
       } catch (error) {
         console.error("Error fetching user:", error);
       }
@@ -32,9 +26,8 @@ function UpdateUser() {
 
   const sendRequest = async () => {
     try {
-      await axios.put(`http://localhost:5000/users/${id}`, {
+      await axios.patch(`http://localhost:5000/api/v1/user/${id}`, {
         name: inputs.name,
-        email: inputs.email,
         password: inputs.password,
         role: inputs.role, // Pass the role to update
       });
@@ -66,7 +59,7 @@ function UpdateUser() {
         <input
           type="text"
           name="name"
-          value={inputs.name}
+          defaultValue={inputs?.name}
           onChange={handleChange}
           required
         />
@@ -77,9 +70,9 @@ function UpdateUser() {
         <input
           type="email"
           name="email"
-          value={inputs.email}
+          value={inputs?.email}
           onChange={handleChange}
-          required
+          readOnly
         />
         <br />
         <br />
@@ -88,7 +81,7 @@ function UpdateUser() {
         <input
           type="password"
           name="password"
-          value={inputs.password}
+          value={inputs?.password}
           onChange={handleChange}
           required
         />
@@ -98,15 +91,15 @@ function UpdateUser() {
         <br />
         <select
           name="role"
-          value={inputs.role}
+          value={inputs?.role}
           onChange={handleChange}
           required
         >
           <option value="">Select Role</option>
-          <option value="admin">Admin</option>
-          <option value="manager">Manager</option>
-          <option value="employee">Employee</option>
-          <option value="customer">Customer</option>
+          <option value="Admin">Admin</option>
+          <option value="Manager">Manager</option>
+          <option value="Employee">Employee</option>
+          <option value="Customer">Customer</option>
         </select>
         <br />
         <br />

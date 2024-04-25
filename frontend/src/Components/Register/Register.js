@@ -4,6 +4,7 @@ import "./Register.css";
 import Nav from "../Nav/Nav";
 import { useNavigate } from "react-router-dom";
 import { Link } from "react-router-dom";
+import Swal from "sweetalert2";
 
 function Register() {
   const history = useNavigate();
@@ -11,30 +12,63 @@ function Register() {
     name: "",
     gmail: "",
     password: "",
+    confirmPassword: "",
   });
   const handleInputChange = (e) => {
     const { name, value } = e.target;
     setUser((prevUser) => ({ ...prevUser, [name]: value }));
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-
-    sendRequest()
-      .then(() => {
-        alert("Register Success");
-        history("/userdetails");
-      })
-      .catch((err) => {
-        alert(err.message);
+    console.log(user);
+    // Check if passwords match
+    if (user.password !== user.confirmPassword) {
+      Swal.fire({
+        icon: "error",
+        title: "Oops...",
+        text: "Passwords do not match!",
       });
+      return;
+    }
+
+    // Check if any field is empty
+    for (const key in user) {
+      if (user[key] === "") {
+        Swal.fire({
+          icon: "error",
+          title: "Oops...",
+          text: "Please fill out all fields!",
+        });
+        return;
+      }
+    }
+
+    try {
+      await sendRequest();
+      Swal.fire({
+        icon: "success",
+        title: "Success",
+        text: "Registration Successful!",
+      });
+      history("/userdetails");
+    } catch (error) {
+      console.error("Registration Error:", error);
+      Swal.fire({
+        icon: "error",
+        title: "Oops...",
+        text: error.response.data.message,
+      });
+    }
   };
+
   const sendRequest = async () => {
     await axios
-      .post("http://localhost:5000/register", {
+      .post("http://localhost:5000/api/v1/user/", {
         name: String(user.name),
-        gmail: String(user.gmail),
+        email: String(user.gmail),
         password: String(user.password),
+        role: "Customer",
       })
       .then((res) => res.data);
   };
@@ -46,45 +80,25 @@ function Register() {
         <h2>Register</h2>
         <form onSubmit={handleSubmit}>
           <label htmlFor="name">Name:</label>
-          <input
-            type="text"
-            value={user.name}
-            onChange={handleInputChange}
-            name="name"
-            required
-          />
+          <input type="text" onChange={handleInputChange} name="name" />
           <br />
           <br />
 
           <label htmlFor="email">Email:</label>
-          <input
-            type="email"
-            value={user.gmail}
-            onChange={handleInputChange}
-            name="gmail"
-            required
-          />
+          <input type="email" onChange={handleInputChange} name="gmail" />
           <br />
           <br />
 
           <label htmlFor="password">Password:</label>
-          <input
-            type="password"
-            value={user.password}
-            onChange={handleInputChange}
-            name="password"
-            required
-          />
+          <input type="password" onChange={handleInputChange} name="password" />
           <br />
           <br />
 
-          <label htmlFor="confirm-password">Confirm Password:</label>
+          <label htmlFor="confirmPassword">Confirm Password:</label>
           <input
             type="password"
-            value={user.password}
             onChange={handleInputChange}
-            name="confirm-password"
-            required
+            name="confirmPassword"
           />
           <br />
           <br />

@@ -1,12 +1,12 @@
 import React, { useEffect, useRef, useState } from "react";
 import NavigationBar from "../AdminNavigation/NavigationBar";
 import axios from "axios";
-import User from "../User/User";
 import { useReactToPrint } from "react-to-print";
 import "./Users.css";
 import { Link } from "react-router-dom";
+import Swal from "sweetalert2";
 
-const URL = "http://localhost:5000/users";
+const URL = "http://localhost:5000/api/v1/user/";
 
 const fetchHandler = async () => {
   try {
@@ -47,11 +47,27 @@ function Users() {
   };
 
   const deleteUser = async (id) => {
-    try {
-      await axios.delete(`http://localhost:5000/users/${id}`);
-      setUsers(users.filter((user) => user._id !== id));
-    } catch (error) {
-      console.error("Error deleting user:", error);
+    // Ask for confirmation
+    const result = await Swal.fire({
+      title: "Are you sure?",
+      text: "You won't be able to revert this!",
+      icon: "warning",
+      showCancelButton: true,
+      confirmButtonColor: "#3085d6",
+      cancelButtonColor: "#d33",
+      confirmButtonText: "Yes, delete it!",
+    });
+
+    // If confirmed, proceed with deletion
+    if (result.isConfirmed) {
+      try {
+        await axios.delete(`http://localhost:5000/api/v1/user/${id}`);
+        setUsers(users.filter((user) => user._id !== id));
+        Swal.fire("Deleted!", "The user has been deleted.", "success");
+      } catch (error) {
+        console.error("Error deleting user:", error);
+        Swal.fire("Error!", "Failed to delete user.", "error");
+      }
     }
   };
 

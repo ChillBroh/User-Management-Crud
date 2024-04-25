@@ -27,7 +27,7 @@ function AddUser() {
 
   const sendRequest = async () => {
     try {
-      await axios.post("http://localhost:5000/users", {
+      await axios.post("http://localhost:5000/api/v1/user/", {
         name: inputs.name,
         email: inputs.email,
         password: inputs.password,
@@ -85,10 +85,10 @@ function AddUser() {
           required
         >
           <option value="">Select Role</option>
-          <option value="admin">Admin</option>
-          <option value="manager">Manager</option>
-          <option value="employee">Employee</option>
-          <option value="customer">Customer</option>
+          <option value="Admin">Admin</option>
+          <option value="Manager">Manager</option>
+          <option value="Employee">Employee</option>
+          <option value="Customer">Customer</option>
         </select>
         <br />
         <br />
