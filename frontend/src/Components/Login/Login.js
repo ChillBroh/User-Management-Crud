@@ -1,14 +1,14 @@
 import React, { useState } from "react";
 import axios from "axios";
 import "./Login.css";
-import Nav from "../Nav/Nav";
 import { useNavigate } from "react-router-dom";
 import { Link } from "react-router-dom";
+import Swal from "sweetalert2";
 
 function Login() {
   const history = useNavigate();
   const [user, setUser] = useState({
-    email: "", // Changed from gmail to email
+    email: "",
     password: "",
     role: "user",
   });
@@ -21,41 +21,61 @@ function Login() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      const response = await sendRequest();
-      if (response.status === "ok") {
-        alert("Login success");
-        redirectUser(response.role, response.redirect);
+      const res = await sendRequest();
+      if (res.data.status === "success") {
+        Swal.fire({
+          icon: "success",
+          title: "Login Success",
+          text: "You have been successfully logged in.",
+        });
+        const role = localStorage.getItem("role");
+        redirectUser(role);
       } else {
-        alert("Login error");
+        Swal.fire({
+          icon: "error",
+          title: "Login Failed",
+          text: "Invalid email or password.",
+        });
       }
     } catch (err) {
-      alert("Error: " + err.message);
+      Swal.fire({
+        icon: "error",
+        title: "Error",
+        text: err.response.data.message,
+      });
     }
   };
 
   const sendRequest = async () => {
-    return await axios
-      .post("http://localhost:5000/login", {
-        email: user.email, // Changed from gmail to email
-        password: user.password,
-        role: user.role,
-      })
-      .then((res) => res.data);
+    const res = await axios.post("http://localhost:5000/api/v1/auth/login", {
+      email: user.email,
+      password: user.password,
+      role: user.role,
+    });
+
+    if (res.data.status === "success") {
+      console.log(res.data);
+      const token = res.data.data.token;
+      const role = res.data.data.role;
+      localStorage.setItem("jsonwebtoken", token);
+      localStorage.setItem("role", role);
+    }
+    return res;
   };
 
-  const redirectUser = (role, redirect) => {
+  const redirectUser = (role) => {
     switch (role) {
-      case "user":
+      case "Customer":
         history("/userdashboard");
         break;
-      case "employee":
+      case "Employee":
         history("/employeedashboard");
         break;
-      case "manager":
+      case "Manager":
         history("/managerdashboard");
         break;
-      case "admin":
-        history(redirect); // Redirect to "/userdetails" for admin
+      case "Admin":
+        history("/");
         break;
       default:
         history("/userdashboard");
@@ -64,7 +84,6 @@ function Login() {
 
   return (
     <div style={{ marginTop: "50px" }}>
-      {/* <Nav /> */}
       <div className="register-container">
         <h2>Login</h2>
         <form onSubmit={handleSubmit}>
@@ -74,7 +93,6 @@ function Login() {
             value={user.email}
             onChange={handleInputChange}
             name="email"
-            required
           />
           <br />
           <br />
@@ -85,17 +103,16 @@ function Login() {
             value={user.password}
             onChange={handleInputChange}
             name="password"
-            required
           />
           <br />
           <br />
 
           <label htmlFor="role">Role:</label>
           <select name="role" value={user.role} onChange={handleInputChange}>
-            <option value="user">User</option>
-            <option value="employee">Employee</option>
-            <option value="manager">Manager</option>
-            <option value="admin">Admin</option>
+            <option value="Customer">Customer</option>
+            <option value="Employee">Employee</option>
+            <option value="Manager">Manager</option>
+            <option value="Admin">Admin</option>
           </select>
           <br />
           <br />
